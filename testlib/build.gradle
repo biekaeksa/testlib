@@ -1,31 +1,7 @@
 apply plugin: 'com.android.library'
 
-ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'testlib'   // Has to be same as your library module name
-
-    publishedGroupId = 'https://github.com/biekaeksa'
-    libraryName = 'TestLib'
-    artifact = 'testlib'     // Has to be same as your library module name
-
-    libraryDescription = 'Android Library to make any text into Toast with Awesome prepended to the text'
-
-    // Your github repo link
-    siteUrl = 'https://github.com/biekaeksa/testlib'
-    gitUrl = 'https://github.com/biekaeksa/testlib.git'
-    githubRepository= 'biekaeksa/testlib.git'
-
-    libraryVersion = '1.0'
-
-    developerId = 'biekaeksa'
-    developerName = 'Biekaeksa Nur Avunta Agung Prasetya'
-    developerEmail = 'biekaeksabiek@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
-
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.biekaeksa'
 android {
     compileSdkVersion 26
 
@@ -58,6 +34,26 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
+// build a jar with source files
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
 
-apply from: 'https://raw.githubusercontent.com/nisrulz/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/nisrulz/JCenter/master/bintrayv1.gradle'
+task javadoc(type: Javadoc) {
+    failOnError  false
+    source = android.sourceSets.main.java.sourceFiles
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.compile
+}
+
+// build a jar with javadoc
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
